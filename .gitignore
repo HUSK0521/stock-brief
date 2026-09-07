@@ -1,0 +1,14 @@
+# 資料快取：49MB，GitHub Actions 用 actions/cache 還原，不進版控
+cache_mkt/
+cache/
+
+# 祕密
+.env
+
+# 產出與暫存
+out/
+universe.json
+*.log
+serve.py
+__pycache__/
+*.pyc

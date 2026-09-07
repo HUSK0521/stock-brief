@@ -1,0 +1,378 @@
+<title>你的持股早報</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7F8; --surface:#FFFFFF; --surface-2:#EDF1F3;
+  --ink:#131A20; --ink-2:#3D4A55; --muted:#5F6D78;
+  --rule:#DCE2E6; --rule-2:#C6D0D6;
+  --brand:#0F6E7D; --brand-soft:#E2F0F2;
+  --up:#D0342C; --down:#12886B;
+  --shadow:0 1px 2px rgba(19,26,32,.05), 0 8px 24px -12px rgba(19,26,32,.18);
+  --serif:"Noto Serif TC",Georgia,"Songti TC",serif;
+  --sans:"Noto Sans TC",-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B1015; --surface:#141C23; --surface-2:#1B252D;
+  --ink:#E4EAEF; --ink-2:#B3C0CA; --muted:#8494A0;
+  --rule:#222E38; --rule-2:#2E3D48;
+  --brand:#46AEC0; --brand-soft:#12313A;
+  --up:#F2564A; --down:#33BE97;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --paper:#0B1015; --surface:#141C23; --surface-2:#1B252D;
+  --ink:#E4EAEF; --ink-2:#B3C0CA; --muted:#8494A0;
+  --rule:#222E38; --rule-2:#2E3D48;
+  --brand:#46AEC0; --brand-soft:#12313A;
+  --up:#F2564A; --down:#33BE97;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  line-height:1.72;-webkit-font-smoothing:antialiased;font-size:15px}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px 72px}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35;margin:0}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.mast{padding:34px 0 18px;border-bottom:2px solid var(--ink)}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brand);font-weight:600}
+.mast h1{font-size:clamp(29px,7vw,40px);font-weight:700;letter-spacing:-.01em;margin:8px 0 10px}
+.mast-meta{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+/* ---------- picker ---------- */
+.picker{margin-top:26px;background:var(--surface);border:1px solid var(--rule-2);
+  border-radius:10px;padding:18px 18px 16px;box-shadow:var(--shadow)}
+.picker h2{font-size:17px;margin-bottom:3px}
+.picker .hint{font-size:13px;color:var(--muted);margin:0 0 14px}
+.search{width:100%;padding:10px 12px;border:1px solid var(--rule-2);border-radius:7px;
+  background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;margin-bottom:14px}
+.search:focus-visible{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+.cat{margin-bottom:12px}
+.cat h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:7px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-size:13px;padding:5px 11px;border:1px solid var(--rule-2);
+  border-radius:999px;background:var(--paper);color:var(--ink-2);cursor:pointer;
+  transition:.13s;line-height:1.4}
+.chip .id{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:5px}
+.chip:hover{border-color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:500}
+.chip[aria-pressed="true"] .id{color:rgba(255,255,255,.72)}
+.chip:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.picker-foot{display:flex;align-items:center;gap:12px;margin-top:14px;
+  padding-top:12px;border-top:1px solid var(--rule)}
+.count{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.clear{margin-left:auto;background:none;border:0;color:var(--brand);font-family:var(--sans);
+  font-size:13px;cursor:pointer;padding:4px 6px;width:auto}
+.clear:hover{text-decoration:underline}
+
+/* ---------- brief ---------- */
+section{margin-top:40px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;
+  padding-bottom:8px;border-bottom:1px solid var(--rule)}
+.sec-head h2{font-size:19px;font-weight:700}
+.sec-head .when{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto}
+p{margin:13px 0}
+.sig{background:var(--surface);border-left:3px solid var(--brand);border-radius:0 6px 6px 0;
+  padding:13px 15px;margin:12px 0;box-shadow:var(--shadow)}
+.sig.top{border-left-color:var(--up)}
+.sig .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--brand);font-weight:600;display:block;margin-bottom:4px}
+.sig.top .lab{color:var(--up)}
+.sig h3{font-size:15.5px;font-weight:600;font-family:var(--sans);margin-bottom:5px}
+.sig p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.65}
+/* 訊號文字是程式生成的，萬一出現長的不可斷字串也不能撐破版面 */
+.sig h3,.sig p{overflow-wrap:anywhere}
+.quiet{font-size:13.5px;color:var(--muted);padding:16px 0}
+
+.tbl-scroll{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:480px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;text-align:right;padding:0 0 7px 10px;
+  border-bottom:1px solid var(--rule-2);white-space:nowrap}
+th:first-child{text-align:left;padding-left:0}
+td{padding:10px 0 10px 10px;border-bottom:1px solid var(--rule);text-align:right;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td:first-child{text-align:left;padding-left:0;font-family:var(--sans)}
+.tick{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:block}
+.up{color:var(--up)} .down{color:var(--down)} .dim{color:var(--muted)}
+
+.usrow{display:flex;flex-wrap:wrap;gap:1px;background:var(--rule);border:1px solid var(--rule);
+  border-radius:8px;overflow:hidden;margin:16px 0}
+.usrow div{flex:1 1 30%;background:var(--surface);padding:11px 13px}
+.usrow dt{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.usrow dd{margin:2px 0 0;font-family:var(--mono);font-size:16px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+
+.ev{display:grid;grid-template-columns:74px 1fr;gap:13px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.ev:first-child{border-top:1px solid var(--rule)}
+.ev .d{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--brand)}
+.ev h3{font-size:14px;font-weight:600;font-family:var(--sans)}
+.ev p{margin:0;font-size:12.5px;color:var(--ink-2)}
+
+.disc{margin-top:32px;padding-top:14px;border-top:1px solid var(--rule);
+  font-size:11.5px;color:var(--muted);line-height:1.6}
+
+/* ---------- feedback ---------- */
+.fb{margin-top:48px;background:var(--surface);border:1px solid var(--rule-2);
+  border-radius:10px;padding:24px 20px;box-shadow:var(--shadow)}
+.fb h2{font-size:18px;margin-bottom:6px}
+.fb>p{font-size:14px;color:var(--ink-2);margin:8px 0 20px}
+fieldset{border:0;padding:0;margin:0 0 18px}
+legend{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding:0;margin-bottom:9px}
+.opts{display:grid;gap:7px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt input{position:absolute;opacity:0;width:0;height:0}
+.opt span{display:block;padding:10px 12px;border:1px solid var(--rule-2);border-radius:7px;
+  cursor:pointer;font-size:13.5px;background:var(--paper);transition:.13s;line-height:1.45}
+.opt span b{font-family:var(--mono);font-weight:600;font-size:14px}
+.opt input:checked+span{border-color:var(--brand);background:var(--brand-soft);
+  color:var(--brand);font-weight:500}
+.opt input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+textarea{width:100%;padding:11px 12px;border:1px solid var(--rule-2);border-radius:7px;
+  background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;
+  resize:vertical;min-height:68px;line-height:1.6}
+textarea:focus-visible{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+button[type=submit]{width:100%;padding:13px;border:0;border-radius:7px;background:var(--brand);
+  color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer}
+button[type=submit]:hover:not(:disabled){filter:brightness(1.1)}
+button[type=submit]:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.fb-foot{margin-top:11px;font-size:12px;color:var(--muted);text-align:center;font-family:var(--mono)}
+.done{text-align:center;padding:12px 0}
+.done .big{font-family:var(--serif);font-size:19px;font-weight:700;margin-bottom:6px}
+.done p{font-size:13.5px;color:var(--ink-2);margin:0}
+@media (max-width:520px){
+  .opts.two{grid-template-columns:1fr}
+  .usrow div{flex:1 1 45%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="kicker">每日 08:30 · 只講你的持股</div>
+    <h1>你的持股早報</h1>
+    <div class="mast-meta" id="asof"></div>
+  </header>
+
+  <div class="picker">
+    <h2>選你的持股</h2>
+    <p class="hint">點一下加入或移除。下面的早報會立刻換成你選的。</p>
+    <input class="search" id="q" type="search" placeholder="搜尋代號或名稱，例如 2330 或 台積電" autocomplete="off">
+    <div id="cats"></div>
+    <div class="picker-foot">
+      <span class="count" id="count"></span>
+      <button class="clear" id="clear" type="button">全部清除</button>
+    </div>
+  </div>
+
+  <section id="brief"></section>
+
+  <section>
+    <div class="sec-head"><h2>昨夜美股</h2><span class="when" id="uswhen"></span></div>
+    <dl class="usrow" id="us"></dl>
+  </section>
+
+  <section id="events-sec" hidden>
+    <div class="sec-head"><h2>未來 7 天</h2><span class="when">你的持股</span></div>
+    <div id="events"></div>
+  </section>
+
+  <p class="disc">本頁為公開資料整理與統計描述，<strong>非投資建議</strong>，不構成任何買賣要約。
+    資料來源：FinMind 公開資料。z 分數為個股相對自身前 20 個交易日的標準差；
+    借券費率為成交量加權，門檻取自該股自身近 60 日分布。</p>
+
+  <section class="fb" id="fb">
+    <h2>這份東西，你會付錢嗎？</h2>
+    <p>上面這些每天早上 8:30 送到你手機，內容就是<strong>你剛剛選的那幾檔</strong>。
+      我在評估要不要真的做出來，需要 30 秒的誠實回答——<strong>說不會付完全沒關係，那才是我最需要知道的</strong>。</p>
+    <form id="form">
+      <fieldset>
+        <legend>一個月你願意付多少</legend>
+        <div class="opts two">
+          <label class="opt"><input type="radio" name="price" value="0" required><span><b>NT$0</b><br>不會付</span></label>
+          <label class="opt"><input type="radio" name="price" value="100"><span><b>NT$100</b><br>可以試試</span></label>
+          <label class="opt"><input type="radio" name="price" value="250"><span><b>NT$250</b><br>合理</span></label>
+          <label class="opt"><input type="radio" name="price" value="500"><span><b>NT$500</b><br>值得</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>哪一段對你最有用</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="best" value="signal" required><span><b>訊號解讀</b> — 法人、借券、融資在做什麼</span></label>
+          <label class="opt"><input type="radio" name="best" value="us"><span><b>昨夜美股</b> — 跟我的持股有什麼關係</span></label>
+          <label class="opt"><input type="radio" name="best" value="events"><span><b>未來 7 天</b> — 營收、除息這些日期</span></label>
+          <label class="opt"><input type="radio" name="best" value="none"><span>都沒有特別有用</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>一句話就好（選填）</legend>
+        <textarea name="note" maxlength="300" placeholder="缺了什麼？哪裡看不懂？為什麼不會付？"></textarea>
+      </fieldset>
+      <button type="submit" id="submit">送出</button>
+      <p class="fb-foot" id="foot">匿名 · 只會記錄你選的股票代號，不含任何個人資料</p>
+    </form>
+    <div class="done" id="done" hidden>
+      <div class="big">收到了，謝謝</div>
+      <p id="done-sub">你的回答是這個決定的一部分。</p>
+    </div>
+  </section>
+</div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById("data").textContent);
+var S = D.stocks;
+var CATS = __CATS__;
+var DEFAULT = __DEFAULT__;
+var KIND = {retail:"散戶接刀", lend:"借券費率", diverge:"法人對做", adr:"ADR 溢價",
+            z:"法人異常量", streak:"連續買賣", vol:"量能異常", us:"美股"};
+
+var sel = new Set();
+try{ var raw=localStorage.getItem("picks"); if(raw) sel=new Set(JSON.parse(raw)); }catch(e){}
+if(!sel.size) sel = new Set(DEFAULT.filter(function(x){return S[x];}));
+
+function save(){ try{ localStorage.setItem("picks", JSON.stringify([].concat(Array.from(sel)))); }catch(e){} }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function num(v,d){ return v===null||v===undefined ? '<span class="dim">—</span>'
+                 : v.toFixed(d===undefined?2:d); }
+function signed(v,suf){ if(v===null||v===undefined) return '<span class="dim">—</span>';
+  return '<span class="'+(v>=0?"up":"down")+'">'+(v>=0?"+":"")+v.toFixed(2)+(suf||"")+'</span>'; }
+
+document.getElementById("asof").textContent = "資料截至 " + D.asof + " 收盤";
+document.getElementById("uswhen").textContent = D.asof;
+
+/* ---- 選股區 ---- */
+var catsEl = document.getElementById("cats");
+CATS.forEach(function(c){
+  var ids = c.ids.filter(function(i){ return S[i]; });
+  if(!ids.length) return;
+  var d = document.createElement("div"); d.className = "cat";
+  d.innerHTML = '<h3>'+esc(c.name)+'</h3><div class="chips">' + ids.map(function(i){
+    return '<button class="chip" type="button" data-id="'+i+'" aria-pressed="false">'
+      + esc(S[i].name) + '<span class="id">'+i+'</span></button>';
+  }).join("") + '</div>';
+  catsEl.appendChild(d);
+});
+
+catsEl.addEventListener("click", function(e){
+  var b = e.target.closest(".chip"); if(!b) return;
+  var id = b.dataset.id;
+  if(sel.has(id)) sel.delete(id); else sel.add(id);
+  save(); render();
+});
+document.getElementById("clear").addEventListener("click", function(){
+  sel.clear(); save(); render();
+});
+document.getElementById("q").addEventListener("input", function(e){
+  var q = e.target.value.trim().toLowerCase();
+  Array.prototype.forEach.call(catsEl.querySelectorAll(".chip"), function(b){
+    var id = b.dataset.id;
+    b.hidden = !!q && id.indexOf(q) < 0 && S[id].name.toLowerCase().indexOf(q) < 0;
+  });
+  Array.prototype.forEach.call(catsEl.querySelectorAll(".cat"), function(c){
+    c.hidden = !c.querySelector(".chip:not([hidden])");
+  });
+});
+
+/* ---- 早報 ---- */
+function render(){
+  Array.prototype.forEach.call(catsEl.querySelectorAll(".chip"), function(b){
+    b.setAttribute("aria-pressed", sel.has(b.dataset.id) ? "true" : "false");
+  });
+  var ids = Array.from(sel).filter(function(i){ return S[i]; });
+  document.getElementById("count").textContent = ids.length ? "已選 " + ids.length + " 檔" : "還沒選";
+
+  var el = document.getElementById("brief");
+  if(!ids.length){
+    el.innerHTML = '<div class="sec-head"><h2>你的早報</h2></div>'
+      + '<p class="quiet">上面選幾檔你有在看的股票，這裡會立刻變成你的專屬早報。</p>';
+    document.getElementById("events-sec").hidden = true;
+    return;
+  }
+
+  var sigs = [];
+  ids.forEach(function(i){ (S[i].signals||[]).forEach(function(s){ sigs.push(s); }); });
+  sigs.sort(function(a,b){ return b.score - a.score; });
+
+  var html = '<div class="sec-head"><h2>你的早報</h2><span class="when">'+ids.length+' 檔</span></div>';
+  if(sigs.length){
+    html += sigs.slice(0,4).map(function(s,n){
+      return '<div class="sig'+(n===0?" top":"")+'"><span class="lab">'
+        + (n===0 ? "今天最該知道的" : esc(KIND[s.kind]||s.kind))
+        + '</span><h3>'+esc(s.head)+'</h3><p>'+esc(s.body)+'</p></div>';
+    }).join("");
+  } else {
+    html += '<p class="quiet">你選的這幾檔今天沒有觸發任何訊號。'
+          + '這本身也是資訊——大部分日子大部分股票確實沒事。</p>';
+  }
+
+  html += '<div class="tbl-scroll"><table><thead><tr><th>個股</th><th>收盤</th><th>漲跌</th>'
+        + '<th>量能</th><th>外資 z</th><th>借券費率</th></tr></thead><tbody>'
+        + ids.map(function(i){
+            var s = S[i];
+            return '<tr><td>'+esc(s.name)+'<span class="tick">'+i+'</span></td>'
+              + '<td>'+num(s.close)+'</td>'
+              + '<td>'+signed(s.chg,"%")+'</td>'
+              + '<td>'+(s.volRatio!=null?s.volRatio.toFixed(2)+"×":'<span class="dim">—</span>')+'</td>'
+              + '<td>'+(s.fz!=null?signed(s.fz):'<span class="dim">—</span>')+'</td>'
+              + '<td>'+(s.lendRate!=null?s.lendRate.toFixed(2)+"%":'<span class="dim">—</span>')+'</td></tr>';
+          }).join("")
+        + '</tbody></table></div>';
+  el.innerHTML = html;
+
+  var evs = [];
+  ids.forEach(function(i){ (S[i].events||[]).forEach(function(e){ evs.push(e); }); });
+  evs.sort(function(a,b){ return a[0] < b[0] ? -1 : 1; });
+  var esec = document.getElementById("events-sec");
+  esec.hidden = !evs.length;
+  if(evs.length){
+    document.getElementById("events").innerHTML = evs.map(function(e){
+      return '<div class="ev"><div class="d">'+esc(e[0].slice(5).replace("-","/"))+'</div>'
+        + '<div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></div>';
+    }).join("");
+  }
+}
+
+document.getElementById("us").innerHTML = Object.keys(D.us).map(function(t){
+  var u = D.us[t];
+  return '<div><dt>'+esc(t)+'</dt><dd>'+u.close.toFixed(2)
+    + ' <span style="font-size:13px">'+(u.chg>=0?'<span class="up">+':'<span class="down">')
+    + u.chg.toFixed(2)+'%</span></span></dd></div>';
+}).join("");
+
+render();
+
+/* ---- 問卷 ---- */
+(async function(){
+  var form=document.getElementById("form"), done=document.getElementById("done"),
+      btn=document.getElementById("submit"), foot=document.getElementById("foot"),
+      sub=document.getElementById("done-sub"), db=null;
+  try{ db = (window.claude && claude.use) ? await claude.use("db") : null; }catch(e){}
+  if(!db){ foot.textContent="離線預覽 — 回覆功能在發佈後才會啟用"; btn.disabled=true; return; }
+  var col = db.collection("responses");
+  try{ col.onSnapshot(function(s){ if(s.size>0 && !form.hidden)
+    foot.textContent="匿名 · 已經有 "+s.size+" 個人回答了"; }, function(){}); }catch(e){}
+  form.addEventListener("submit", async function(e){
+    e.preventDefault();
+    btn.disabled=true; btn.textContent="送出中…";
+    var fd=new FormData(form);
+    try{
+      await col.add({ price:Number(fd.get("price")), best:String(fd.get("best")),
+        note:String(fd.get("note")||"").slice(0,300),
+        picks:Array.from(sel).slice(0,60), asof:D.asof, at:new Date().toISOString() });
+      form.hidden=true; done.hidden=false;
+      try{ var s=await col.get(); sub.textContent="你是第 "+s.size+" 個回答的人。這個決定有你的一份。"; }catch(e2){}
+    }catch(err){ btn.disabled=false; btn.textContent="再試一次"; foot.textContent="沒送出去，再按一次試試"; }
+  });
+})();
+})();
+</script>

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>台股訊號早報</title>
+<meta name="description" content="每個交易日自動掃描全台股 2,300 檔，找出法人異常買賣、外資與投信對做、融資接刀、量能異常。資料來自證交所與櫃買中心公開資料。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7F8; --surface:#FFFFFF; --surface-2:#EDF1F3;
+  --ink:#131A20; --ink-2:#3D4A55; --muted:#5F6D78;
+  --rule:#DCE2E6; --rule-2:#C6D0D6;
+  --brand:#0F6E7D; --brand-soft:#E2F0F2;
+  --up:#D0342C; --down:#12886B;
+  --shadow:0 1px 2px rgba(19,26,32,.05), 0 8px 24px -12px rgba(19,26,32,.18);
+  --serif:"Noto Serif TC",Georgia,"Songti TC",serif;
+  --sans:"Noto Sans TC",-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B1015; --surface:#141C23; --surface-2:#1B252D;
+  --ink:#E4EAEF; --ink-2:#B3C0CA; --muted:#8494A0;
+  --rule:#222E38; --rule-2:#2E3D48;
+  --brand:#46AEC0; --brand-soft:#12313A;
+  --up:#F2564A; --down:#33BE97;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --paper:#0B1015; --surface:#141C23; --surface-2:#1B252D;
+  --ink:#E4EAEF; --ink-2:#B3C0CA; --muted:#8494A0;
+  --rule:#222E38; --rule-2:#2E3D48;
+  --brand:#46AEC0; --brand-soft:#12313A;
+  --up:#F2564A; --down:#33BE97;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  line-height:1.72;-webkit-font-smoothing:antialiased;font-size:15px}
+img{max-width:100%}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px 80px}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35;margin:0}
+
+.mast{padding:34px 0 18px;border-bottom:2px solid var(--ink)}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brand);font-weight:600}
+.mast h1{font-size:clamp(28px,7vw,40px);font-weight:700;letter-spacing:-.01em;margin:8px 0 10px}
+.mast-meta{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.lede{font-size:16px;color:var(--ink-2);margin:14px 0 0;max-width:62ch}
+
+section{margin-top:40px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;
+  padding-bottom:8px;border-bottom:1px solid var(--rule)}
+.sec-head h2{font-size:20px;font-weight:700}
+.sec-head .when{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto}
+p{margin:13px 0}
+
+.sig{background:var(--surface);border-left:3px solid var(--brand);border-radius:0 6px 6px 0;
+  padding:13px 15px;margin:11px 0;box-shadow:var(--shadow)}
+.sig.top{border-left-color:var(--up)}
+.sig .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--brand);font-weight:600;display:block;margin-bottom:4px}
+.sig.top .lab{color:var(--up)}
+.sig h3{font-size:15.5px;font-weight:600;font-family:var(--sans);margin-bottom:5px;
+  overflow-wrap:anywhere}
+.sig p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.65;overflow-wrap:anywhere}
+.quiet{font-size:13.5px;color:var(--muted);padding:14px 0}
+
+/* ---------- 選股 ---------- */
+.picker{margin-top:14px;background:var(--surface);border:1px solid var(--rule-2);
+  border-radius:10px;padding:18px;box-shadow:var(--shadow)}
+.searchbox{position:relative}
+input[type=search]{width:100%;padding:11px 13px;border:1px solid var(--rule-2);border-radius:8px;
+  background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px}
+input[type=search]:focus-visible{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+.results{list-style:none;margin:8px 0 0;padding:0;max-height:270px;overflow-y:auto;
+  border:1px solid var(--rule);border-radius:8px;background:var(--paper)}
+.results:empty{display:none}
+.results li{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;
+  border-bottom:1px solid var(--rule);font-size:14px}
+.results li:last-child{border-bottom:0}
+.results li:hover,.results li[aria-selected=true]{background:var(--brand-soft);color:var(--brand)}
+.results .c{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:56px}
+.results li:hover .c{color:var(--brand)}
+.results .px{margin-left:auto;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.picked{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{display:inline-flex;align-items:center;gap:7px;padding:5px 8px 5px 11px;border-radius:999px;
+  background:var(--brand);color:#fff;font-size:13px;font-weight:500}
+.tag .c{font-family:var(--mono);font-size:10.5px;opacity:.75}
+.tag button{background:none;border:0;color:#fff;cursor:pointer;font-size:15px;
+  line-height:1;padding:0 2px;opacity:.8}
+.tag button:hover{opacity:1}
+.tag button:focus-visible{outline:2px solid #fff;outline-offset:1px;border-radius:3px}
+.hint{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+
+.tbl-scroll{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;text-align:right;padding:0 0 7px 10px;
+  border-bottom:1px solid var(--rule-2);white-space:nowrap}
+th:first-child{text-align:left;padding-left:0}
+td{padding:10px 0 10px 10px;border-bottom:1px solid var(--rule);text-align:right;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td:first-child{text-align:left;padding-left:0;font-family:var(--sans)}
+.tick{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:block}
+.up{color:var(--up)} .down{color:var(--down)} .dim{color:var(--muted)}
+
+.stats{display:flex;flex-wrap:wrap;gap:1px;background:var(--rule);border:1px solid var(--rule);
+  border-radius:8px;overflow:hidden;margin:18px 0}
+.stats div{flex:1 1 30%;background:var(--surface);padding:12px 14px}
+.stats dt{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.stats dd{margin:2px 0 0;font-family:var(--mono);font-size:19px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--rule);
+  font-size:11.5px;color:var(--muted);line-height:1.7}
+footer a{color:var(--brand)}
+@media (max-width:520px){ .stats div{flex:1 1 45%} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="kicker">全台股 · 每個交易日自動更新</div>
+    <h1>台股訊號早報</h1>
+    <div class="mast-meta" id="asof"></div>
+    <p class="lede">每個交易日掃描全市場,找出<strong>法人異常買賣、外資與投信對做、融資接刀、量能異常</strong>。
+      資料來自證交所與櫃買中心公開資料,程式自動產生,沒有人工選股。</p>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2>今日全市場訊號</h2><span class="when" id="mktwhen"></span></div>
+    <dl class="stats" id="stats"></dl>
+    <div id="market"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>看你自己的持股</h2></div>
+    <div class="picker">
+      <div class="searchbox">
+        <input type="search" id="q" placeholder="輸入代號或名稱,例如 2330 或 台積電" autocomplete="off"
+               aria-label="搜尋股票">
+        <ul class="results" id="results" role="listbox"></ul>
+      </div>
+      <div class="picked" id="picked"></div>
+      <p class="hint" id="hint"></p>
+    </div>
+    <div id="mine"></div>
+  </section>
+
+  <footer>
+    <p>本站為公開資料的整理與統計描述,<strong>非投資建議</strong>,不構成任何買賣要約。
+      投資有風險,決策請自行判斷並自負盈虧。</p>
+    <p>資料來源:臺灣證券交易所、證券櫃檯買賣中心公開資料。
+      z 分數為個股相對自身前 20 個交易日的標準差;融資餘額單位為張。
+      數值可能因資料來源更新而調整。</p>
+    <p id="gen"></p>
+  </footer>
+</div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+"use strict";
+var D=JSON.parse(document.getElementById("data").textContent), S=D.stocks;
+var CODES=Object.keys(S);
+var KIND={retail:"散戶接刀",diverge:"法人對做",z:"法人異常量",streak:"連續買賣",vol:"量能異常"};
+var sel=[];
+try{var r=localStorage.getItem("picks");if(r)sel=JSON.parse(r).filter(function(c){return S[c];});}catch(e){}
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function save(){try{localStorage.setItem("picks",JSON.stringify(sel));}catch(e){}}
+function sgn(v,suf){if(v===null||v===undefined)return '<span class="dim">—</span>';
+  return '<span class="'+(v>=0?"up":"down")+'">'+(v>=0?"+":"")+v.toFixed(2)+(suf||"")+'</span>';}
+function card(s,top){return '<div class="sig'+(top?" top":"")+'"><span class="lab">'
+  +esc(top?"今天最該知道的":(KIND[s.kind]||s.kind))+'</span><h3>'+esc(s.head)+'</h3><p>'+esc(s.body)+'</p></div>';}
+
+document.getElementById("asof").textContent="資料截至 "+D.asof+" 收盤 · 全市場 "+D.count.toLocaleString()+" 檔";
+document.getElementById("mktwhen").textContent=D.asof;
+document.getElementById("gen").textContent="產生時間 "+(D.generated||"").replace("T"," ");
+
+/* ---- 全市場 ---- */
+// ETF 不列入全市場排行：它的法人買賣超多半來自造市商的申購贖回避險，
+// 反映的是套利機制而不是對個股的看法。使用者自己的持股裡還是照常顯示。
+var all=[];
+CODES.forEach(function(c){ if(S[c].etf) return;
+  (S[c].signals||[]).forEach(function(s){all.push(s);}); });
+all.sort(function(a,b){return b.score-a.score;});
+var byKind={};
+all.forEach(function(s){byKind[s.kind]=(byKind[s.kind]||0)+1;});
+document.getElementById("stats").innerHTML=
+  '<div><dt>掃描檔數</dt><dd>'+D.count.toLocaleString()+'</dd></div>'
+ +'<div><dt>觸發訊號</dt><dd>'+all.length.toLocaleString()+'</dd></div>'
+ +Object.keys(KIND).filter(function(k){return byKind[k];}).map(function(k){
+    return '<div><dt>'+esc(KIND[k])+'</dt><dd>'+byKind[k]+'</dd></div>';}).join("");
+document.getElementById("market").innerHTML = all.length
+  ? all.slice(0,12).map(function(s,i){return card(s,i===0);}).join("")
+    + '<p class="hint">全市場排行不含 ETF——ETF 的法人買賣超多來自造市商避險，不代表看法。</p>' 
+  : '<p class="quiet">今天全市場沒有觸發任何訊號。這種日子很少，但確實會有。</p>';
+
+/* ---- 搜尋 ---- */
+var q=document.getElementById("q"), res=document.getElementById("results");
+function search(term){
+  term=term.trim().toLowerCase();
+  if(!term){res.innerHTML="";return;}
+  var hit=[];
+  for(var i=0;i<CODES.length && hit.length<25;i++){
+    var c=CODES[i];
+    if(c.toLowerCase().indexOf(term)===0 || S[c].name.toLowerCase().indexOf(term)>=0) hit.push(c);
+  }
+  res.innerHTML=hit.map(function(c){
+    return '<li role="option" data-code="'+c+'"><span class="c">'+c+'</span>'
+      +esc(S[c].name)+'<span class="px">'+(S[c].close!=null?S[c].close.toFixed(2):"—")+"　"
+      +(S[c].chg!=null?sgn(S[c].chg,"%"):"")+'</span></li>';}).join("");
+}
+q.addEventListener("input",function(){search(q.value);});
+res.addEventListener("click",function(e){
+  var li=e.target.closest("li[data-code]"); if(!li) return;
+  var c=li.dataset.code;
+  if(sel.indexOf(c)<0) sel.push(c);
+  q.value=""; res.innerHTML=""; save(); render(); q.focus();
+});
+document.getElementById("picked").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-code]"); if(!b) return;
+  sel=sel.filter(function(x){return x!==b.dataset.code;}); save(); render();
+});
+
+/* ---- 我的持股 ---- */
+function render(){
+  document.getElementById("picked").innerHTML=sel.map(function(c){
+    return '<span class="tag">'+esc(S[c].name)+'<span class="c">'+c+'</span>'
+      +'<button type="button" data-code="'+c+'" aria-label="移除 '+esc(S[c].name)+'">&times;</button></span>';
+  }).join("");
+  document.getElementById("hint").textContent = sel.length
+    ? "已選 "+sel.length+" 檔 · 瀏覽器會記住，下次打開還在"
+    : "搜尋並點選你的持股，下面會變成只講這幾檔的早報。";
+
+  var el=document.getElementById("mine");
+  if(!sel.length){el.innerHTML="";return;}
+  var sigs=[];
+  sel.forEach(function(c){(S[c].signals||[]).forEach(function(s){sigs.push(s);});});
+  sigs.sort(function(a,b){return b.score-a.score;});
+  var h = sigs.length
+    ? sigs.slice(0,6).map(function(s,i){return card(s,i===0);}).join("")
+    : '<p class="quiet">你選的這幾檔今天沒有觸發任何訊號。這本身也是資訊——大部分日子大部分股票確實沒事。</p>';
+  h+='<div class="tbl-scroll"><table><thead><tr><th>個股</th><th>收盤</th><th>漲跌</th>'
+    +'<th>量能</th><th>外資 z</th><th>投信 z</th><th>融資增減</th></tr></thead><tbody>'
+    +sel.map(function(c){var s=S[c];
+      return '<tr><td>'+esc(s.name)+'<span class="tick">'+c+'</span></td>'
+        +'<td>'+(s.close!=null?s.close.toFixed(2):'<span class="dim">—</span>')+'</td>'
+        +'<td>'+sgn(s.chg,"%")+'</td>'
+        +'<td>'+(s.volRatio!=null?s.volRatio.toFixed(2)+"×":'<span class="dim">—</span>')+'</td>'
+        +'<td>'+sgn(s.fz)+'</td><td>'+sgn(s.tz)+'</td>'
+        +'<td>'+(s.marginChg!=null?sgn(s.marginChg/1,"")+" 張":'<span class="dim">—</span>')+'</td></tr>';
+    }).join("")+'</tbody></table></div>';
+  el.innerHTML=h;
+}
+render();
+})();
+</script>
+</body>
+</html>

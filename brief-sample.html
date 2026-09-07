@@ -1,0 +1,378 @@
+<title>你的持股早報</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7F8; --surface:#FFFFFF; --surface-2:#EDF1F3;
+  --ink:#131A20; --ink-2:#3D4A55; --muted:#5F6D78;
+  --rule:#DCE2E6; --rule-2:#C6D0D6;
+  --brand:#0F6E7D; --brand-soft:#E2F0F2;
+  --up:#D0342C; --down:#12886B;
+  --shadow:0 1px 2px rgba(19,26,32,.05), 0 8px 24px -12px rgba(19,26,32,.18);
+  --serif:"Noto Serif TC",Georgia,"Songti TC",serif;
+  --sans:"Noto Sans TC",-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B1015; --surface:#141C23; --surface-2:#1B252D;
+  --ink:#E4EAEF; --ink-2:#B3C0CA; --muted:#8494A0;
+  --rule:#222E38; --rule-2:#2E3D48;
+  --brand:#46AEC0; --brand-soft:#12313A;
+  --up:#F2564A; --down:#33BE97;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --paper:#0B1015; --surface:#141C23; --surface-2:#1B252D;
+  --ink:#E4EAEF; --ink-2:#B3C0CA; --muted:#8494A0;
+  --rule:#222E38; --rule-2:#2E3D48;
+  --brand:#46AEC0; --brand-soft:#12313A;
+  --up:#F2564A; --down:#33BE97;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  line-height:1.72;-webkit-font-smoothing:antialiased;font-size:15px}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px 72px}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;line-height:1.35;margin:0}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.mast{padding:34px 0 18px;border-bottom:2px solid var(--ink)}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brand);font-weight:600}
+.mast h1{font-size:clamp(29px,7vw,40px);font-weight:700;letter-spacing:-.01em;margin:8px 0 10px}
+.mast-meta{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+/* ---------- picker ---------- */
+.picker{margin-top:26px;background:var(--surface);border:1px solid var(--rule-2);
+  border-radius:10px;padding:18px 18px 16px;box-shadow:var(--shadow)}
+.picker h2{font-size:17px;margin-bottom:3px}
+.picker .hint{font-size:13px;color:var(--muted);margin:0 0 14px}
+.search{width:100%;padding:10px 12px;border:1px solid var(--rule-2);border-radius:7px;
+  background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;margin-bottom:14px}
+.search:focus-visible{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+.cat{margin-bottom:12px}
+.cat h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin-bottom:7px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-size:13px;padding:5px 11px;border:1px solid var(--rule-2);
+  border-radius:999px;background:var(--paper);color:var(--ink-2);cursor:pointer;
+  transition:.13s;line-height:1.4}
+.chip .id{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:5px}
+.chip:hover{border-color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:500}
+.chip[aria-pressed="true"] .id{color:rgba(255,255,255,.72)}
+.chip:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.picker-foot{display:flex;align-items:center;gap:12px;margin-top:14px;
+  padding-top:12px;border-top:1px solid var(--rule)}
+.count{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.clear{margin-left:auto;background:none;border:0;color:var(--brand);font-family:var(--sans);
+  font-size:13px;cursor:pointer;padding:4px 6px;width:auto}
+.clear:hover{text-decoration:underline}
+
+/* ---------- brief ---------- */
+section{margin-top:40px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;
+  padding-bottom:8px;border-bottom:1px solid var(--rule)}
+.sec-head h2{font-size:19px;font-weight:700}
+.sec-head .when{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto}
+p{margin:13px 0}
+.sig{background:var(--surface);border-left:3px solid var(--brand);border-radius:0 6px 6px 0;
+  padding:13px 15px;margin:12px 0;box-shadow:var(--shadow)}
+.sig.top{border-left-color:var(--up)}
+.sig .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--brand);font-weight:600;display:block;margin-bottom:4px}
+.sig.top .lab{color:var(--up)}
+.sig h3{font-size:15.5px;font-weight:600;font-family:var(--sans);margin-bottom:5px}
+.sig p{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.65}
+/* 訊號文字是程式生成的，萬一出現長的不可斷字串也不能撐破版面 */
+.sig h3,.sig p{overflow-wrap:anywhere}
+.quiet{font-size:13.5px;color:var(--muted);padding:16px 0}
+
+.tbl-scroll{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:480px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;text-align:right;padding:0 0 7px 10px;
+  border-bottom:1px solid var(--rule-2);white-space:nowrap}
+th:first-child{text-align:left;padding-left:0}
+td{padding:10px 0 10px 10px;border-bottom:1px solid var(--rule);text-align:right;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td:first-child{text-align:left;padding-left:0;font-family:var(--sans)}
+.tick{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:block}
+.up{color:var(--up)} .down{color:var(--down)} .dim{color:var(--muted)}
+
+.usrow{display:flex;flex-wrap:wrap;gap:1px;background:var(--rule);border:1px solid var(--rule);
+  border-radius:8px;overflow:hidden;margin:16px 0}
+.usrow div{flex:1 1 30%;background:var(--surface);padding:11px 13px}
+.usrow dt{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.usrow dd{margin:2px 0 0;font-family:var(--mono);font-size:16px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+
+.ev{display:grid;grid-template-columns:74px 1fr;gap:13px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.ev:first-child{border-top:1px solid var(--rule)}
+.ev .d{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--brand)}
+.ev h3{font-size:14px;font-weight:600;font-family:var(--sans)}
+.ev p{margin:0;font-size:12.5px;color:var(--ink-2)}
+
+.disc{margin-top:32px;padding-top:14px;border-top:1px solid var(--rule);
+  font-size:11.5px;color:var(--muted);line-height:1.6}
+
+/* ---------- feedback ---------- */
+.fb{margin-top:48px;background:var(--surface);border:1px solid var(--rule-2);
+  border-radius:10px;padding:24px 20px;box-shadow:var(--shadow)}
+.fb h2{font-size:18px;margin-bottom:6px}
+.fb>p{font-size:14px;color:var(--ink-2);margin:8px 0 20px}
+fieldset{border:0;padding:0;margin:0 0 18px}
+legend{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding:0;margin-bottom:9px}
+.opts{display:grid;gap:7px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt input{position:absolute;opacity:0;width:0;height:0}
+.opt span{display:block;padding:10px 12px;border:1px solid var(--rule-2);border-radius:7px;
+  cursor:pointer;font-size:13.5px;background:var(--paper);transition:.13s;line-height:1.45}
+.opt span b{font-family:var(--mono);font-weight:600;font-size:14px}
+.opt input:checked+span{border-color:var(--brand);background:var(--brand-soft);
+  color:var(--brand);font-weight:500}
+.opt input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+textarea{width:100%;padding:11px 12px;border:1px solid var(--rule-2);border-radius:7px;
+  background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13.5px;
+  resize:vertical;min-height:68px;line-height:1.6}
+textarea:focus-visible{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+button[type=submit]{width:100%;padding:13px;border:0;border-radius:7px;background:var(--brand);
+  color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer}
+button[type=submit]:hover:not(:disabled){filter:brightness(1.1)}
+button[type=submit]:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.fb-foot{margin-top:11px;font-size:12px;color:var(--muted);text-align:center;font-family:var(--mono)}
+.done{text-align:center;padding:12px 0}
+.done .big{font-family:var(--serif);font-size:19px;font-weight:700;margin-bottom:6px}
+.done p{font-size:13.5px;color:var(--ink-2);margin:0}
+@media (max-width:520px){
+  .opts.two{grid-template-columns:1fr}
+  .usrow div{flex:1 1 45%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="kicker">每日 08:30 · 只講你的持股</div>
+    <h1>你的持股早報</h1>
+    <div class="mast-meta" id="asof"></div>
+  </header>
+
+  <div class="picker">
+    <h2>選你的持股</h2>
+    <p class="hint">點一下加入或移除。下面的早報會立刻換成你選的。</p>
+    <input class="search" id="q" type="search" placeholder="搜尋代號或名稱，例如 2330 或 台積電" autocomplete="off">
+    <div id="cats"></div>
+    <div class="picker-foot">
+      <span class="count" id="count"></span>
+      <button class="clear" id="clear" type="button">全部清除</button>
+    </div>
+  </div>
+
+  <section id="brief"></section>
+
+  <section>
+    <div class="sec-head"><h2>昨夜美股</h2><span class="when" id="uswhen"></span></div>
+    <dl class="usrow" id="us"></dl>
+  </section>
+
+  <section id="events-sec" hidden>
+    <div class="sec-head"><h2>未來 7 天</h2><span class="when">你的持股</span></div>
+    <div id="events"></div>
+  </section>
+
+  <p class="disc">本頁為公開資料整理與統計描述，<strong>非投資建議</strong>，不構成任何買賣要約。
+    資料來源：FinMind 公開資料。z 分數為個股相對自身前 20 個交易日的標準差；
+    借券費率為成交量加權，門檻取自該股自身近 60 日分布。</p>
+
+  <section class="fb" id="fb">
+    <h2>這份東西，你會付錢嗎？</h2>
+    <p>上面這些每天早上 8:30 送到你手機，內容就是<strong>你剛剛選的那幾檔</strong>。
+      我在評估要不要真的做出來，需要 30 秒的誠實回答——<strong>說不會付完全沒關係，那才是我最需要知道的</strong>。</p>
+    <form id="form">
+      <fieldset>
+        <legend>一個月你願意付多少</legend>
+        <div class="opts two">
+          <label class="opt"><input type="radio" name="price" value="0" required><span><b>NT$0</b><br>不會付</span></label>
+          <label class="opt"><input type="radio" name="price" value="100"><span><b>NT$100</b><br>可以試試</span></label>
+          <label class="opt"><input type="radio" name="price" value="250"><span><b>NT$250</b><br>合理</span></label>
+          <label class="opt"><input type="radio" name="price" value="500"><span><b>NT$500</b><br>值得</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>哪一段對你最有用</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="best" value="signal" required><span><b>訊號解讀</b> — 法人、借券、融資在做什麼</span></label>
+          <label class="opt"><input type="radio" name="best" value="us"><span><b>昨夜美股</b> — 跟我的持股有什麼關係</span></label>
+          <label class="opt"><input type="radio" name="best" value="events"><span><b>未來 7 天</b> — 營收、除息這些日期</span></label>
+          <label class="opt"><input type="radio" name="best" value="none"><span>都沒有特別有用</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>一句話就好（選填）</legend>
+        <textarea name="note" maxlength="300" placeholder="缺了什麼？哪裡看不懂？為什麼不會付？"></textarea>
+      </fieldset>
+      <button type="submit" id="submit">送出</button>
+      <p class="fb-foot" id="foot">匿名 · 只會記錄你選的股票代號，不含任何個人資料</p>
+    </form>
+    <div class="done" id="done" hidden>
+      <div class="big">收到了，謝謝</div>
+      <p id="done-sub">你的回答是這個決定的一部分。</p>
+    </div>
+  </section>
+</div>
+
+<script id="data" type="application/json">{"asof":"2026-09-04","generated":"2026-09-07T14:36:31","us":{"NVDA":{"close":230.36,"chg":0.84},"AAPL":{"close":319.97,"chg":-2.51},"AVGO":{"close":357.89,"chg":0.2},"AMD":{"close":477.57,"chg":4.69},"MU":{"close":1016.59,"chg":6.1}},"stocks":{"2330":{"name":"台積電","close":2410.0,"chg":0.84,"volRatio":0.69,"fz":0.33,"fnet":1885085,"tz":-0.2,"tstreak":-1,"marginChg":-78,"lendRate":0.69,"lendMed":0.42,"prem":12.58,"premDelta":1.77,"rev":{"ym":"2026/7","amt":467580548000.0,"yoy":44.68755126916979,"mom":5.624961765550318},"events":[["2026-09-10","台積電 8 月營收公布","法定期限"]],"signals":[{"kind":"adr","head":"台積電 ADR 溢價單日擴大 1.77 個百分點","body":"TSM 溢價來到 12.58%（前日 10.81%），是近十個交易日最高。ADR 隱含台股價 2,713 元，實際收 2,410 元。 而台股當天量能只有 20 日均量的 0.69 倍，買方沒跟上。","score":96.8}]},"2454":{"name":"聯發科","close":4415.0,"chg":1.73,"volRatio":1.07,"fz":0.06,"fnet":534504,"tz":1.04,"tstreak":3,"marginChg":-16,"lendRate":0.27,"lendMed":0.3,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":48474930000.0,"yoy":12.158135262975867,"mom":-16.439471337499246},"events":[["2026-09-10","聯發科 8 月營收公布","法定期限"]],"signals":[]},"2303":{"name":"聯電","close":130.0,"chg":4.0,"volRatio":0.99,"fz":0.87,"fnet":26550699,"tz":0.71,"tstreak":1,"marginChg":2892,"lendRate":0.29,"lendMed":0.47,"prem":1.07,"premDelta":0.17,"rev":{"ym":"2026/8","amt":25044641000.0,"yoy":30.714412915030074,"mom":5.0352027099428875},"events":[],"signals":[]},"3711":{"name":"日月光投控","close":588.0,"chg":-0.17,"volRatio":0.87,"fz":-1.21,"fnet":-3581433,"tz":0.66,"tstreak":2,"marginChg":432,"lendRate":0.34,"lendMed":0.35,"prem":0.89,"premDelta":-0.01,"rev":{"ym":"2026/7","amt":73783701000.0,"yoy":43.15248488549142,"mom":12.16208837339412},"events":[["2026-09-10","日月光投控 8 月營收公布","法定期限"]],"signals":[]},"2379":{"name":"瑞昱","close":713.0,"chg":0.85,"volRatio":0.57,"fz":0.04,"fnet":-182315,"tz":0.01,"tstreak":6,"marginChg":-25,"lendRate":8.62,"lendMed":3.88,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":12895149000.0,"yoy":32.5360739085377,"mom":4.748457953179486},"events":[["2026-09-08","瑞昱除息交易日","配息 25.00 元"],["2026-09-10","瑞昱 8 月營收公布","法定期限"]],"signals":[{"kind":"lend","head":"瑞昱 借券費率飆到 8.62%","body":"平常中位數只有 3.88%（2.2 倍），單筆最高 10.00%，當日借券 596 張。借券是拿來放空的，費率被推高代表有人急到願意付溢價。當日股價 +0.85%。","score":102.2},{"kind":"streak","head":"瑞昱 外資連 7 天賣超","body":"少見的長連續。當日股價 +0.85%。","score":67},{"kind":"streak","head":"瑞昱 投信連 6 天買超","body":"少見的長連續。當日股價 +0.85%。","score":66}]},"3034":{"name":"聯詠","close":524.0,"chg":-0.57,"volRatio":0.57,"fz":-0.39,"fnet":226078,"tz":-0.08,"tstreak":1,"marginChg":7,"lendRate":0.7,"lendMed":2.0,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":10296332000.0,"yoy":26.79559106440088,"mom":2.7311886062253654},"events":[["2026-09-10","聯詠 8 月營收公布","法定期限"]],"signals":[]},"3661":{"name":"世芯-KY","close":4220.0,"chg":4.2,"volRatio":0.72,"fz":0.3,"fnet":185451,"tz":0.31,"tstreak":6,"marginChg":-5,"lendRate":4.5,"lendMed":1.39,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":7433152000.0,"yoy":181.78410842912646,"mom":108.07142753171254},"events":[["2026-09-10","世芯-KY 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"世芯-KY 投信連 6 天買超","body":"少見的長連續。當日股價 +4.20%。","score":66}]},"5269":{"name":"祥碩","close":1430.0,"chg":-0.69,"volRatio":0.57,"fz":-1.18,"fnet":-121142,"tz":0.68,"tstreak":6,"marginChg":12,"lendRate":15.5,"lendMed":9.0,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":783204000.0,"yoy":-37.99095521310354,"mom":-9.685260737505107},"events":[["2026-09-10","祥碩 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"祥碩 投信連 6 天買超","body":"少見的長連續。當日股價 -0.69%。","score":66}]},"3443":{"name":"創意","close":5810.0,"chg":0.17,"volRatio":0.67,"fz":-0.04,"fnet":63245,"tz":-0.43,"tstreak":2,"marginChg":-28,"lendRate":0.56,"lendMed":0.59,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":5769170000.0,"yoy":158.38135946958363,"mom":17.057034658736757},"events":[["2026-09-10","創意 8 月營收公布","法定期限"]],"signals":[]},"2317":{"name":"鴻海","close":256.0,"chg":3.43,"volRatio":1.29,"fz":2.2,"fnet":26407791,"tz":1.19,"tstreak":1,"marginChg":68,"lendRate":0.25,"lendMed":0.28,"prem":null,"premDelta":null,"rev":{"ym":"2026/8","amt":921766023000.0,"yoy":51.97813152256481,"mom":-2.6144946713083317},"events":[],"signals":[{"kind":"z","head":"鴻海 外資買超 z=+2.20","body":"買超 2,641 萬股，是 20 個交易日內沒出現過的量級。當日股價 +3.43%。","score":91.0}]},"2382":{"name":"廣達","close":345.0,"chg":2.99,"volRatio":1.2,"fz":3.82,"fnet":12836784,"tz":-0.25,"tstreak":6,"marginChg":240,"lendRate":0.79,"lendMed":5.42,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":366274080000.0,"yoy":131.31830412017854,"mom":-4.911004888434256},"events":[["2026-09-10","廣達 8 月營收公布","法定期限"]],"signals":[{"kind":"z","head":"廣達 外資買超 z=+3.82","body":"買超 1,284 萬股，是 20 個交易日內沒出現過的量級。當日股價 +2.99%。","score":99.1},{"kind":"streak","head":"廣達 投信連 6 天買超","body":"少見的長連續。當日股價 +2.99%。","score":66}]},"2357":{"name":"華碩","close":1025.0,"chg":5.56,"volRatio":1.27,"fz":0.8,"fnet":2385514,"tz":-0.0,"tstreak":6,"marginChg":-31,"lendRate":0.95,"lendMed":1.37,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":84131254000.0,"yoy":53.32509293862542,"mom":-21.16861471829833},"events":[["2026-09-10","華碩 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"華碩 投信連 6 天買超","body":"少見的長連續。當日股價 +5.56%。","score":66}]},"2356":{"name":"英業達","close":67.5,"chg":3.85,"volRatio":1.1,"fz":1.4,"fnet":13444182,"tz":0.5,"tstreak":1,"marginChg":-963,"lendRate":2.23,"lendMed":2.82,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":90190327000.0,"yoy":65.72846150631871,"mom":-11.804988991505194},"events":[["2026-09-10","英業達 8 月營收公布","法定期限"]],"signals":[{"kind":"retail","head":"英業達：法人在進，散戶在減碼","body":"外資買超 13,444 張（z=+1.40），融資餘額反而減少 963 張。當日股價 +3.85%。","score":102},{"kind":"streak","head":"英業達 外資連 5 天買超","body":"少見的長連續。當日股價 +3.85%。","score":65}]},"3231":{"name":"緯創","close":198.0,"chg":5.04,"volRatio":1.68,"fz":3.19,"fnet":23925305,"tz":0.59,"tstreak":6,"marginChg":-746,"lendRate":3.17,"lendMed":2.33,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":308219198000.0,"yoy":60.76046186556017,"mom":-4.226800004445941},"events":[["2026-09-10","緯創 8 月營收公布","法定期限"]],"signals":[{"kind":"z","head":"緯創 外資買超 z=+3.19","body":"買超 2,393 萬股，是 20 個交易日內沒出現過的量級。當日股價 +5.04%。","score":95.9},{"kind":"streak","head":"緯創 投信連 6 天買超","body":"少見的長連續。當日股價 +5.04%。","score":66}]},"2376":{"name":"技嘉","close":361.0,"chg":3.0,"volRatio":0.92,"fz":0.52,"fnet":1823547,"tz":-1.0,"tstreak":-1,"marginChg":360,"lendRate":6.44,"lendMed":6.16,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":44213037000.0,"yoy":59.671016515190644,"mom":3.0788091893074077},"events":[["2026-09-10","技嘉 8 月營收公布","法定期限"]],"signals":[]},"2377":{"name":"微星","close":161.5,"chg":7.31,"volRatio":1.55,"fz":2.41,"fnet":10951518,"tz":2.41,"tstreak":3,"marginChg":-1006,"lendRate":4.14,"lendMed":9.24,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":19342388000.0,"yoy":-0.01941988959557328,"mom":8.93521148844123},"events":[["2026-09-10","微星 8 月營收公布","法定期限"]],"signals":[{"kind":"retail","head":"微星：法人在進，散戶在減碼","body":"外資買超 10,952 張（z=+2.41），融資餘額反而減少 1,006 張。當日股價 +7.31%。","score":102},{"kind":"z","head":"微星 外資買超 z=+2.41","body":"買超 1,095 萬股，是 20 個交易日內沒出現過的量級。當日股價 +7.31%。","score":92.1},{"kind":"streak","head":"微星 外資連 6 天買超","body":"少見的長連續。當日股價 +7.31%。","score":66}]},"6669":{"name":"緯穎","close":2565.0,"chg":3.64,"volRatio":1.97,"fz":-0.13,"fnet":-432408,"tz":1.53,"tstreak":2,"marginChg":103,"lendRate":9.29,"lendMed":5.28,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":117685530000.0,"yoy":39.22548649319522,"mom":5.669698598621475},"events":[["2026-09-10","緯穎 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"緯穎 外資連 5 天賣超","body":"少見的長連續。當日股價 +3.64%——連續賣超卻收漲，賣壓被吃下來了。","score":80}]},"2301":{"name":"光寶科","close":308.0,"chg":3.01,"volRatio":0.75,"fz":0.83,"fnet":4774853,"tz":-0.31,"tstreak":14,"marginChg":-822,"lendRate":0.77,"lendMed":0.35,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":19005536000.0,"yoy":37.60526813844039,"mom":1.8760313283680885},"events":[["2026-09-10","光寶科 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"光寶科 投信連 14 天買超","body":"少見的長連續。當日股價 +3.01%。","score":74}]},"2308":{"name":"台達電","close":1825.0,"chg":3.69,"volRatio":0.82,"fz":0.93,"fnet":1406988,"tz":0.75,"tstreak":2,"marginChg":-184,"lendRate":0.25,"lendMed":0.3,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":67073192000.0,"yoy":47.74794778461098,"mom":2.2416501074934425},"events":[["2026-09-10","台達電 8 月營收公布","法定期限"]],"signals":[]},"2881":{"name":"富邦金","close":150.5,"chg":2.38,"volRatio":0.97,"fz":0.17,"fnet":3294593,"tz":-0.32,"tstreak":-1,"marginChg":24,"lendRate":0.29,"lendMed":0.34,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":10661000000.0,"yoy":-66.27675369105216,"mom":-51.885952422107465},"events":[["2026-09-10","富邦金 8 月營收公布","法定期限"]],"signals":[]},"2882":{"name":"國泰金","close":115.0,"chg":2.22,"volRatio":0.78,"fz":0.12,"fnet":2098088,"tz":-0.47,"tstreak":6,"marginChg":-70,"lendRate":0.25,"lendMed":0.35,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":25135906000.0,"yoy":-31.866984426766255,"mom":-22.195336618170025},"events":[["2026-09-10","國泰金 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"國泰金 投信連 6 天買超","body":"少見的長連續。當日股價 +2.22%。","score":66}]},"2891":{"name":"中信金","close":68.4,"chg":1.33,"volRatio":0.89,"fz":0.81,"fnet":5083286,"tz":0.42,"tstreak":6,"marginChg":-63,"lendRate":0.25,"lendMed":0.25,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":18046269000.0,"yoy":71.10564113027785,"mom":-8.986567472951823},"events":[["2026-09-10","中信金 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"中信金 外資連 6 天買超","body":"少見的長連續。當日股價 +1.33%。","score":66},{"kind":"streak","head":"中信金 投信連 6 天買超","body":"少見的長連續。當日股價 +1.33%。","score":66}]},"2886":{"name":"兆豐金","close":49.55,"chg":-1.69,"volRatio":0.91,"fz":0.18,"fnet":13042537,"tz":0.26,"tstreak":1,"marginChg":613,"lendRate":0.17,"lendMed":0.29,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":8644030000.0,"yoy":1.7707986872507409,"mom":6.7700816052117085},"events":[["2026-09-10","兆豐金 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"兆豐金 外資連 17 天買超","body":"少見的長連續。當日股價 -1.69%——連續買超卻收跌，有人在對面倒貨。","score":92}]},"2884":{"name":"玉山金","close":43.55,"chg":0.81,"volRatio":1.43,"fz":1.26,"fnet":8186726,"tz":-0.04,"tstreak":22,"marginChg":-1714,"lendRate":0.33,"lendMed":0.36,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":8761315000.0,"yoy":4.745527493307633,"mom":-6.42739813224652},"events":[["2026-09-10","玉山金 8 月營收公布","法定期限"]],"signals":[{"kind":"retail","head":"玉山金：法人在進，散戶在減碼","body":"外資買超 8,187 張（z=+1.26），融資餘額反而減少 1,714 張。當日股價 +0.81%。","score":102},{"kind":"streak","head":"玉山金 投信連 22 天買超","body":"少見的長連續。當日股價 +0.81%。","score":82}]},"2892":{"name":"第一金","close":37.3,"chg":1.22,"volRatio":0.74,"fz":0.27,"fnet":14323628,"tz":-0.13,"tstreak":1,"marginChg":-3,"lendRate":0.45,"lendMed":0.29,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":7765813000.0,"yoy":3.0442712255278837,"mom":7.39367825152355},"events":[["2026-09-10","第一金 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"第一金 外資連 13 天買超","body":"少見的長連續。當日股價 +1.22%。","score":73}]},"5880":{"name":"合庫金","close":26.65,"chg":-0.19,"volRatio":0.95,"fz":0.66,"fnet":7784848,"tz":-0.44,"tstreak":-4,"marginChg":-315,"lendRate":0.37,"lendMed":0.33,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":7009749000.0,"yoy":6.293062741840538,"mom":7.526066417594035},"events":[["2026-09-10","合庫金 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"合庫金 外資連 11 天買超","body":"少見的長連續。當日股價 -0.19%。","score":71}]},"2887":{"name":"台新金","close":41.5,"chg":0.12,"volRatio":0.77,"fz":-0.1,"fnet":-653248,"tz":-0.51,"tstreak":9,"marginChg":363,"lendRate":0.33,"lendMed":0.26,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":18052275000.0,"yoy":79.22811364390463,"mom":1.7792778697716338},"events":[["2026-09-10","台新金 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"台新金 投信連 9 天買超","body":"少見的長連續。當日股價 +0.12%。","score":69}]},"2890":{"name":"永豐金","close":42.85,"chg":0.59,"volRatio":0.78,"fz":-0.32,"fnet":-1641845,"tz":-0.07,"tstreak":3,"marginChg":-79,"lendRate":0.26,"lendMed":0.31,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":9954051000.0,"yoy":51.29772013409097,"mom":2.800456392856421},"events":[["2026-09-10","永豐金 8 月營收公布","法定期限"]],"signals":[]},"1301":{"name":"台塑","close":66.0,"chg":0.46,"volRatio":0.79,"fz":-0.44,"fnet":-768205,"tz":-0.05,"tstreak":0,"marginChg":476,"lendRate":0.89,"lendMed":1.12,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":15293925000.0,"yoy":4.774052353303615,"mom":9.42777023404091},"events":[["2026-09-10","台塑 8 月營收公布","法定期限"]],"signals":[]},"1303":{"name":"南亞","close":225.5,"chg":2.04,"volRatio":0.61,"fz":-0.3,"fnet":-5624819,"tz":-0.72,"tstreak":-1,"marginChg":123,"lendRate":0.64,"lendMed":0.35,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":30572583000.0,"yoy":44.531415979030385,"mom":12.670140756124137},"events":[["2026-09-10","南亞 8 月營收公布","法定期限"]],"signals":[]},"2002":{"name":"中鋼","close":19.1,"chg":0.53,"volRatio":0.38,"fz":-0.13,"fnet":2116673,"tz":1.12,"tstreak":4,"marginChg":318,"lendRate":0.46,"lendMed":2.79,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":29719695000.0,"yoy":21.84525379167297,"mom":6.1641154034352885},"events":[["2026-09-10","中鋼 8 月營收公布","法定期限"]],"signals":[{"kind":"vol","head":"中鋼 量能極縮至 20 日均量的 0.38 倍","body":"當日股價 +0.53%，收 19.10。","score":55}]},"1216":{"name":"統一","close":75.6,"chg":0.0,"volRatio":0.55,"fz":-0.81,"fnet":1856640,"tz":0.44,"tstreak":-13,"marginChg":28,"lendRate":0.4,"lendMed":0.95,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":62168637000.0,"yoy":8.84909301522625,"mom":6.633707089497709},"events":[["2026-09-10","統一 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"統一 投信連 13 天賣超","body":"少見的長連續。當日股價 +0.00%。","score":73},{"kind":"streak","head":"統一 外資連 5 天買超","body":"少見的長連續。當日股價 +0.00%。","score":65}]},"1101":{"name":"台泥","close":24.6,"chg":0.61,"volRatio":0.33,"fz":-0.42,"fnet":-5210414,"tz":1.63,"tstreak":3,"marginChg":358,"lendRate":3.12,"lendMed":2.71,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":13744103000.0,"yoy":1.5379365538929823,"mom":2.7004777658569123},"events":[["2026-09-10","台泥 8 月營收公布","法定期限"]],"signals":[{"kind":"vol","head":"台泥 量能極縮至 20 日均量的 0.33 倍","body":"當日股價 +0.61%，收 24.60。","score":55}]},"2412":{"name":"中華電","close":137.5,"chg":-0.36,"volRatio":0.83,"fz":0.83,"fnet":1584238,"tz":-0.13,"tstreak":1,"marginChg":-50,"lendRate":0.19,"lendMed":0.28,"prem":0.8,"premDelta":0.11,"rev":{"ym":"2026/7","amt":19884860000.0,"yoy":3.680239027779608,"mom":-6.829521469585941},"events":[["2026-09-10","中華電 8 月營收公布","法定期限"]],"signals":[]},"3045":{"name":"台灣大","close":118.0,"chg":0.0,"volRatio":0.44,"fz":-0.26,"fnet":2166757,"tz":0.33,"tstreak":5,"marginChg":6,"lendRate":2.8,"lendMed":0.74,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":16171068000.0,"yoy":7.144907328757699,"mom":-6.6464331218979105},"events":[["2026-09-10","台灣大 8 月營收公布","法定期限"]],"signals":[{"kind":"lend","head":"台灣大 借券費率飆到 2.80%","body":"平常中位數只有 0.74%（3.8 倍），單筆最高 4.41%，當日借券 8,689 張。借券是拿來放空的，費率被推高代表有人急到願意付溢價。當日股價 +0.00%。","score":103.8},{"kind":"streak","head":"台灣大 外資連 15 天買超","body":"少見的長連續。當日股價 +0.00%。","score":75},{"kind":"streak","head":"台灣大 投信連 5 天買超","body":"少見的長連續。當日股價 +0.00%。","score":65},{"kind":"vol","head":"台灣大 量能極縮至 20 日均量的 0.44 倍","body":"當日股價 +0.00%，收 118.00。","score":55}]},"4904":{"name":"遠傳","close":104.0,"chg":0.48,"volRatio":0.61,"fz":-0.06,"fnet":917749,"tz":0.26,"tstreak":1,"marginChg":-23,"lendRate":0.3,"lendMed":0.42,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":9252373000.0,"yoy":14.867176215060617,"mom":-3.8434965302121094},"events":[["2026-09-10","遠傳 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"遠傳 外資連 5 天買超","body":"少見的長連續。當日股價 +0.48%。","score":65}]},"2207":{"name":"和泰車","close":539.0,"chg":3.45,"volRatio":1.54,"fz":3.97,"fnet":198325,"tz":0.08,"tstreak":1,"marginChg":-11,"lendRate":1.75,"lendMed":1.97,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":30043601000.0,"yoy":17.88516371341,"mom":3.63758114731334},"events":[["2026-09-10","和泰車 8 月營收公布","法定期限"]],"signals":[{"kind":"retail","head":"和泰車：法人在進，散戶在減碼","body":"外資買超 198 張（z=+3.97），融資餘額反而減少 11 張。當日股價 +3.45%。","score":102},{"kind":"z","head":"和泰車 外資買超 z=+3.97","body":"買超 20 萬股，是 20 個交易日內沒出現過的量級。當日股價 +3.45%。","score":99.9}]},"2603":{"name":"長榮","close":233.0,"chg":-2.51,"volRatio":0.97,"fz":-2.1,"fnet":-8088631,"tz":0.95,"tstreak":3,"marginChg":440,"lendRate":3.4,"lendMed":3.1,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":48079100000.0,"yoy":43.07054113785047,"mom":22.83485150564801},"events":[["2026-09-10","長榮 8 月營收公布","法定期限"]],"signals":[{"kind":"retail","head":"長榮：法人在出，散戶用融資在接","body":"外資賣超 8,089 張（z=-2.10），同一天融資餘額增加 440 張（z=+2.00），餘額來到 12,219 張。當日股價 -2.51%。","score":107.0},{"kind":"diverge","head":"長榮 外資與投信對做","body":"外資賣超 809 萬股（z=-2.10），投信反向買超 138 萬股（已連 3 天）。兩邊都不是散戶，而看法相反。","score":101.0},{"kind":"z","head":"長榮 外資賣超 z=-2.10","body":"賣超 809 萬股，是 20 個交易日內沒出現過的量級。當日股價 -2.51%。","score":90.5}]},"2609":{"name":"陽明","close":58.2,"chg":0.69,"volRatio":0.34,"fz":-0.45,"fnet":-13633,"tz":-0.06,"tstreak":1,"marginChg":-1022,"lendRate":0.13,"lendMed":2.78,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":20836075000.0,"yoy":34.561694112456266,"mom":25.585137176677144},"events":[["2026-09-10","陽明 8 月營收公布","法定期限"]],"signals":[{"kind":"vol","head":"陽明 量能極縮至 20 日均量的 0.34 倍","body":"當日股價 +0.69%，收 58.20。","score":55}]},"2615":{"name":"萬海","close":115.0,"chg":-0.43,"volRatio":0.47,"fz":-0.79,"fnet":-518206,"tz":-0.25,"tstreak":2,"marginChg":-659,"lendRate":0.18,"lendMed":2.37,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":18639594000.0,"yoy":50.12952578091807,"mom":15.302039777100962},"events":[["2026-09-10","萬海 8 月營收公布","法定期限"]],"signals":[{"kind":"vol","head":"萬海 量能極縮至 20 日均量的 0.47 倍","body":"當日股價 -0.43%，收 115.00。","score":55}]},"2610":{"name":"華航","close":20.45,"chg":-0.49,"volRatio":0.41,"fz":0.35,"fnet":390045,"tz":-0.3,"tstreak":5,"marginChg":269,"lendRate":0.03,"lendMed":0.92,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":22234995000.0,"yoy":25.337801940298377,"mom":2.178166963252237},"events":[["2026-09-10","華航 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"華航 投信連 5 天買超","body":"少見的長連續。當日股價 -0.49%。","score":65},{"kind":"vol","head":"華航 量能極縮至 20 日均量的 0.41 倍","body":"當日股價 -0.49%，收 20.45。","score":55}]},"2618":{"name":"長榮航","close":42.5,"chg":-0.7,"volRatio":0.36,"fz":-0.54,"fnet":-2466867,"tz":0.4,"tstreak":9,"marginChg":-78,"lendRate":1.0,"lendMed":0.48,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":22453631000.0,"yoy":21.417491122139598,"mom":-4.339367783343473},"events":[["2026-09-10","長榮航 8 月營收公布","法定期限"]],"signals":[{"kind":"streak","head":"長榮航 投信連 9 天買超","body":"少見的長連續。當日股價 -0.70%。","score":69},{"kind":"vol","head":"長榮航 量能極縮至 20 日均量的 0.36 倍","body":"當日股價 -0.70%，收 42.50。","score":55}]},"6446":{"name":"藥華藥","close":1310.0,"chg":-2.96,"volRatio":0.79,"fz":-1.02,"fnet":-754957,"tz":0.24,"tstreak":2,"marginChg":137,"lendRate":0.75,"lendMed":0.58,"prem":null,"premDelta":null,"rev":{"ym":"2026/8","amt":2617220000.0,"yoy":105.42747614667087,"mom":4.384664840520669},"events":[],"signals":[{"kind":"retail","head":"藥華藥：法人在出，散戶用融資在接","body":"外資賣超 755 張（z=-1.02），同一天融資餘額增加 137 張（z=+1.22），餘額來到 9,276 張。當日股價 -2.96%。","score":106.2}]},"1707":{"name":"葡萄王","close":90.5,"chg":-0.22,"volRatio":0.32,"fz":0.07,"fnet":-34968,"tz":0.0,"tstreak":0,"marginChg":3,"lendRate":0.01,"lendMed":2.0,"prem":null,"premDelta":null,"rev":{"ym":"2026/7","amt":716707000.0,"yoy":-5.076320965253267,"mom":-12.558211602912994},"events":[["2026-09-10","葡萄王 8 月營收公布","法定期限"]],"signals":[{"kind":"vol","head":"葡萄王 量能極縮至 20 日均量的 0.32 倍","body":"當日股價 -0.22%，收 90.50。","score":55}]},"0050":{"name":"元大台灣50","close":107.9,"chg":1.6,"volRatio":0.66,"fz":0.46,"fnet":12906389,"tz":-0.07,"tstreak":0,"marginChg":-327,"lendRate":0.01,"lendMed":0.2,"prem":null,"premDelta":null,"rev":null,"events":[],"signals":[]},"0056":{"name":"元大高股息","close":55.4,"chg":1.65,"volRatio":0.73,"fz":0.94,"fnet":10531932,"tz":-0.42,"tstreak":0,"marginChg":-273,"lendRate":null,"lendMed":null,"prem":null,"premDelta":null,"rev":null,"events":[],"signals":[]},"00878":{"name":"國泰永續高股息","close":34.11,"chg":1.58,"volRatio":1.19,"fz":1.51,"fnet":16022125,"tz":0.22,"tstreak":0,"marginChg":-527,"lendRate":null,"lendMed":null,"prem":null,"premDelta":null,"rev":null,"events":[],"signals":[{"kind":"retail","head":"國泰永續高股息：法人在進，散戶在減碼","body":"外資買超 16,022 張（z=+1.51），融資餘額反而減少 527 張。當日股價 +1.58%。","score":102},{"kind":"streak","head":"國泰永續高股息 外資連 12 天買超","body":"少見的長連續。當日股價 +1.58%。","score":72}]},"00919":{"name":"群益台灣精選高息","close":33.02,"chg":1.54,"volRatio":1.28,"fz":1.08,"fnet":8881298,"tz":-0.29,"tstreak":0,"marginChg":867,"lendRate":null,"lendMed":null,"prem":null,"premDelta":null,"rev":null,"events":[],"signals":[]},"00929":{"name":"復華台灣科技優息","close":29.4,"chg":1.77,"volRatio":0.83,"fz":0.67,"fnet":2479757,"tz":0.0,"tstreak":0,"marginChg":206,"lendRate":null,"lendMed":null,"prem":null,"premDelta":null,"rev":null,"events":[],"signals":[]},"00940":{"name":"元大台灣價值高息","close":13.01,"chg":1.8,"volRatio":1.92,"fz":2.7,"fnet":5482000,"tz":0.0,"tstreak":0,"marginChg":-26,"lendRate":null,"lendMed":null,"prem":null,"premDelta":null,"rev":null,"events":[["2026-09-08","元大台灣價值高息除息交易日","配息 0.06 元"]],"signals":[{"kind":"z","head":"元大台灣價值高息 外資買超 z=+2.70","body":"買超 548 萬股，是 20 個交易日內沒出現過的量級。當日股價 +1.80%。","score":93.5}]},"006208":{"name":"富邦台50","close":247.25,"chg":1.42,"volRatio":0.72,"fz":0.41,"fnet":120831,"tz":0.28,"tstreak":0,"marginChg":-5,"lendRate":null,"lendMed":null,"prem":null,"premDelta":null,"rev":null,"events":[],"signals":[]},"00713":{"name":"元大台灣高息低波","close":63.45,"chg":0.55,"volRatio":0.91,"fz":-0.2,"fnet":52253,"tz":1.43,"tstreak":1,"marginChg":36,"lendRate":null,"lendMed":null,"prem":null,"premDelta":null,"rev":null,"events":[],"signals":[]}}}</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById("data").textContent);
+var S = D.stocks;
+var CATS = [{"name": "半導體", "ids": ["2330", "2454", "2303", "3711", "2379", "3034", "3661", "5269", "3443"]}, {"name": "電子 · AI 伺服器", "ids": ["2317", "2382", "2357", "2356", "3231", "2376", "2377", "6669", "2301", "2308"]}, {"name": "金融", "ids": ["2881", "2882", "2891", "2886", "2884", "2892", "5880", "2887", "2890"]}, {"name": "傳產 · 電信 · 航運", "ids": ["1301", "1303", "2002", "1216", "1101", "2412", "3045", "4904", "2207", "2603", "2609", "2615", "2610", "2618"]}, {"name": "生技", "ids": ["6446", "1707"]}, {"name": "ETF", "ids": ["0050", "0056", "00878", "00919", "00929", "00940", "006208", "00713"]}];
+var DEFAULT = ["2330", "0050", "00878"];
+var KIND = {retail:"散戶接刀", lend:"借券費率", diverge:"法人對做", adr:"ADR 溢價",
+            z:"法人異常量", streak:"連續買賣", vol:"量能異常", us:"美股"};
+
+var sel = new Set();
+try{ var raw=localStorage.getItem("picks"); if(raw) sel=new Set(JSON.parse(raw)); }catch(e){}
+if(!sel.size) sel = new Set(DEFAULT.filter(function(x){return S[x];}));
+
+function save(){ try{ localStorage.setItem("picks", JSON.stringify([].concat(Array.from(sel)))); }catch(e){} }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function num(v,d){ return v===null||v===undefined ? '<span class="dim">—</span>'
+                 : v.toFixed(d===undefined?2:d); }
+function signed(v,suf){ if(v===null||v===undefined) return '<span class="dim">—</span>';
+  return '<span class="'+(v>=0?"up":"down")+'">'+(v>=0?"+":"")+v.toFixed(2)+(suf||"")+'</span>'; }
+
+document.getElementById("asof").textContent = "資料截至 " + D.asof + " 收盤";
+document.getElementById("uswhen").textContent = D.asof;
+
+/* ---- 選股區 ---- */
+var catsEl = document.getElementById("cats");
+CATS.forEach(function(c){
+  var ids = c.ids.filter(function(i){ return S[i]; });
+  if(!ids.length) return;
+  var d = document.createElement("div"); d.className = "cat";
+  d.innerHTML = '<h3>'+esc(c.name)+'</h3><div class="chips">' + ids.map(function(i){
+    return '<button class="chip" type="button" data-id="'+i+'" aria-pressed="false">'
+      + esc(S[i].name) + '<span class="id">'+i+'</span></button>';
+  }).join("") + '</div>';
+  catsEl.appendChild(d);
+});
+
+catsEl.addEventListener("click", function(e){
+  var b = e.target.closest(".chip"); if(!b) return;
+  var id = b.dataset.id;
+  if(sel.has(id)) sel.delete(id); else sel.add(id);
+  save(); render();
+});
+document.getElementById("clear").addEventListener("click", function(){
+  sel.clear(); save(); render();
+});
+document.getElementById("q").addEventListener("input", function(e){
+  var q = e.target.value.trim().toLowerCase();
+  Array.prototype.forEach.call(catsEl.querySelectorAll(".chip"), function(b){
+    var id = b.dataset.id;
+    b.hidden = !!q && id.indexOf(q) < 0 && S[id].name.toLowerCase().indexOf(q) < 0;
+  });
+  Array.prototype.forEach.call(catsEl.querySelectorAll(".cat"), function(c){
+    c.hidden = !c.querySelector(".chip:not([hidden])");
+  });
+});
+
+/* ---- 早報 ---- */
+function render(){
+  Array.prototype.forEach.call(catsEl.querySelectorAll(".chip"), function(b){
+    b.setAttribute("aria-pressed", sel.has(b.dataset.id) ? "true" : "false");
+  });
+  var ids = Array.from(sel).filter(function(i){ return S[i]; });
+  document.getElementById("count").textContent = ids.length ? "已選 " + ids.length + " 檔" : "還沒選";
+
+  var el = document.getElementById("brief");
+  if(!ids.length){
+    el.innerHTML = '<div class="sec-head"><h2>你的早報</h2></div>'
+      + '<p class="quiet">上面選幾檔你有在看的股票，這裡會立刻變成你的專屬早報。</p>';
+    document.getElementById("events-sec").hidden = true;
+    return;
+  }
+
+  var sigs = [];
+  ids.forEach(function(i){ (S[i].signals||[]).forEach(function(s){ sigs.push(s); }); });
+  sigs.sort(function(a,b){ return b.score - a.score; });
+
+  var html = '<div class="sec-head"><h2>你的早報</h2><span class="when">'+ids.length+' 檔</span></div>';
+  if(sigs.length){
+    html += sigs.slice(0,4).map(function(s,n){
+      return '<div class="sig'+(n===0?" top":"")+'"><span class="lab">'
+        + (n===0 ? "今天最該知道的" : esc(KIND[s.kind]||s.kind))
+        + '</span><h3>'+esc(s.head)+'</h3><p>'+esc(s.body)+'</p></div>';
+    }).join("");
+  } else {
+    html += '<p class="quiet">你選的這幾檔今天沒有觸發任何訊號。'
+          + '這本身也是資訊——大部分日子大部分股票確實沒事。</p>';
+  }
+
+  html += '<div class="tbl-scroll"><table><thead><tr><th>個股</th><th>收盤</th><th>漲跌</th>'
+        + '<th>量能</th><th>外資 z</th><th>借券費率</th></tr></thead><tbody>'
+        + ids.map(function(i){
+            var s = S[i];
+            return '<tr><td>'+esc(s.name)+'<span class="tick">'+i+'</span></td>'
+              + '<td>'+num(s.close)+'</td>'
+              + '<td>'+signed(s.chg,"%")+'</td>'
+              + '<td>'+(s.volRatio!=null?s.volRatio.toFixed(2)+"×":'<span class="dim">—</span>')+'</td>'
+              + '<td>'+(s.fz!=null?signed(s.fz):'<span class="dim">—</span>')+'</td>'
+              + '<td>'+(s.lendRate!=null?s.lendRate.toFixed(2)+"%":'<span class="dim">—</span>')+'</td></tr>';
+          }).join("")
+        + '</tbody></table></div>';
+  el.innerHTML = html;
+
+  var evs = [];
+  ids.forEach(function(i){ (S[i].events||[]).forEach(function(e){ evs.push(e); }); });
+  evs.sort(function(a,b){ return a[0] < b[0] ? -1 : 1; });
+  var esec = document.getElementById("events-sec");
+  esec.hidden = !evs.length;
+  if(evs.length){
+    document.getElementById("events").innerHTML = evs.map(function(e){
+      return '<div class="ev"><div class="d">'+esc(e[0].slice(5).replace("-","/"))+'</div>'
+        + '<div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></div>';
+    }).join("");
+  }
+}
+
+document.getElementById("us").innerHTML = Object.keys(D.us).map(function(t){
+  var u = D.us[t];
+  return '<div><dt>'+esc(t)+'</dt><dd>'+u.close.toFixed(2)
+    + ' <span style="font-size:13px">'+(u.chg>=0?'<span class="up">+':'<span class="down">')
+    + u.chg.toFixed(2)+'%</span></span></dd></div>';
+}).join("");
+
+render();
+
+/* ---- 問卷 ---- */
+(async function(){
+  var form=document.getElementById("form"), done=document.getElementById("done"),
+      btn=document.getElementById("submit"), foot=document.getElementById("foot"),
+      sub=document.getElementById("done-sub"), db=null;
+  try{ db = (window.claude && claude.use) ? await claude.use("db") : null; }catch(e){}
+  if(!db){ foot.textContent="離線預覽 — 回覆功能在發佈後才會啟用"; btn.disabled=true; return; }
+  var col = db.collection("responses");
+  try{ col.onSnapshot(function(s){ if(s.size>0 && !form.hidden)
+    foot.textContent="匿名 · 已經有 "+s.size+" 個人回答了"; }, function(){}); }catch(e){}
+  form.addEventListener("submit", async function(e){
+    e.preventDefault();
+    btn.disabled=true; btn.textContent="送出中…";
+    var fd=new FormData(form);
+    try{
+      await col.add({ price:Number(fd.get("price")), best:String(fd.get("best")),
+        note:String(fd.get("note")||"").slice(0,300),
+        picks:Array.from(sel).slice(0,60), asof:D.asof, at:new Date().toISOString() });
+      form.hidden=true; done.hidden=false;
+      try{ var s=await col.get(); sub.textContent="你是第 "+s.size+" 個回答的人。這個決定有你的一份。"; }catch(e2){}
+    }catch(err){ btn.disabled=false; btn.textContent="再試一次"; foot.textContent="沒送出去，再按一次試試"; }
+  });
+})();
+})();
+</script>

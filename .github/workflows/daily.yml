@@ -1,0 +1,51 @@
+name: 每日產生早報
+
+on:
+  schedule:
+    # 09:00 UTC = 台北 17:00，收盤與三大法人資料都已公布
+    - cron: "0 9 * * 1-5"
+  workflow_dispatch: {}   # 也可以在 Actions 頁面手動按一下就跑
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-brief
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # 歷史資料不會變，快取起來就只需要抓新的交易日
+      - name: 還原資料快取
+        uses: actions/cache@v4
+        with:
+          path: cache_mkt
+          key: mkt-${{ github.run_id }}
+          restore-keys: mkt-
+
+      # build_site.py 只用證交所/櫃買的公開資料，不需要任何金鑰
+      - name: 產生網站
+        run: python build_site.py
+
+      - name: 提交結果
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A docs
+          if git diff --staged --quiet; then
+            echo "內容沒變，不提交"
+          else
+            git commit -m "早報 $(TZ=Asia/Taipei date +%Y-%m-%d)"
+            git push
+          fi
