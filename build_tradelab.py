@@ -10,6 +10,10 @@ DATA = "tradelab.json"
 OUT = "tradelab.html"
 DOCS = "docs"
 
+# 自架站用的分頁圖標。artifact 版的圖標是發布時另外指定的，
+# 所以只注入到 docs/ 那份，避免覆蓋掉它。
+FAVICON = ('<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNEM3REYwIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEI1Q0Y2Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik05IDExLjVoMTRNMTYgMTEuNVYyMyIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMuNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+">')
+
 
 def main():
     for f in (TEMPLATE, DATA):
@@ -30,7 +34,8 @@ def main():
     os.makedirs(DOCS, exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         f.write(html)
-    shutil.copy(OUT, os.path.join(DOCS, OUT))
+    with open(os.path.join(DOCS, OUT), "w", encoding="utf-8") as f:
+        f.write(FAVICON + "\n" + html)
     shutil.copy(DATA, os.path.join(DOCS, DATA))
 
     # 前端每分鐘輪詢這個小檔判斷有沒有更新，有變才去抓 1MB 的主檔
