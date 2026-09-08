@@ -1,13 +1,19 @@
-# 資料快取：49MB，GitHub Actions 用 actions/cache 還原，不進版控
+# 資料快取：數十 MB，GitHub Actions 用 actions/cache 還原
 cache_mkt/
 cache/
 
 # 祕密
 .env
+notify.config.json
 
-# 產出與暫存
+# 建置中間產物（發布用的那份在 docs/）
+/tradelab.html
+/tradelab.json
+/meta.json
 out/
 universe.json
+
+# 暫存
 *.log
 serve.py
 __pycache__/

@@ -82,7 +82,8 @@ def _twse_price(date):
     if not tbl:
         return pd.DataFrame()
     f = tbl["fields"]
-    ix = {k: f.index(k) for k in ("證券代號", "證券名稱", "成交股數", "成交金額", "收盤價", "漲跌價差") if k in f}
+    ix = {k: f.index(k) for k in ("證券代號", "證券名稱", "成交股數", "成交金額",
+                                  "開盤價", "最高價", "最低價", "收盤價", "漲跌價差") if k in f}
     sign_i = f.index("漲跌(+/-)") if "漲跌(+/-)" in f else None
     rows = []
     for r in tbl["data"]:
@@ -93,6 +94,9 @@ def _twse_price(date):
                      "name": str(r[ix["證券名稱"]]).strip(),
                      "volume": _num(r[ix["成交股數"]]),
                      "value": _num(r[ix["成交金額"]]),
+                     "open": _num(r[ix["開盤價"]]) if "開盤價" in ix else float("nan"),
+                     "high": _num(r[ix["最高價"]]) if "最高價" in ix else float("nan"),
+                     "low": _num(r[ix["最低價"]]) if "最低價" in ix else float("nan"),
                      "close": _num(r[ix["收盤價"]]),
                      "chg": chg, "date": date, "mkt": "twse"})
     return pd.DataFrame(rows)
@@ -163,6 +167,7 @@ def _tpex_price(date):
             return None
         i_code, i_name = col("代號"), col("名稱")
         i_close, i_chg = col("收盤"), col("漲跌")
+        i_o, i_h, i_l = col("開盤"), col("最高"), col("最低")
         i_vol, i_val = col("成交股數"), col("成交金額")
         if i_code is not None and i_close is not None:
             for r in t.get("data") or []:
@@ -170,10 +175,75 @@ def _tpex_price(date):
                              "name": str(r[i_name]).strip() if i_name is not None else "",
                              "volume": _num(r[i_vol]) if i_vol is not None else float("nan"),
                              "value": _num(r[i_val]) if i_val is not None else float("nan"),
+                             "open": _num(r[i_o]) if i_o is not None else float("nan"),
+                             "high": _num(r[i_h]) if i_h is not None else float("nan"),
+                             "low": _num(r[i_l]) if i_l is not None else float("nan"),
                              "close": _num(r[i_close]),
                              "chg": _num(r[i_chg]) if i_chg is not None else float("nan"),
                              "date": date, "mkt": "tpex"})
     return pd.DataFrame(rows)
+
+
+def _twse_index(date):
+    """加權指數、漲跌家數、大盤成交金額——算 Market Regime 的原料。"""
+    d = _get_json(f"{TWSE}/afterTrading/MI_INDEX",
+                  {"date": date.replace("-", ""), "type": "ALL", "response": "json"})
+    if not d or d.get("stat") != "OK":
+        return pd.DataFrame()
+    rec = {"date": date}
+    for t in d.get("tables", []):
+        title, rows = str(t.get("title", "")), t.get("data") or []
+        f = t.get("fields") or []
+        if "指數" in str(f[:1]) and rows:
+            for r in rows:
+                if str(r[0]).strip() == "發行量加權股價指數":
+                    # 漲跌點數是無號的，方向要看 r[2] 的紅綠標記；
+                    # 但漲跌百分比欄位本身已經帶負號，不能再乘一次。
+                    up = "red" in re.sub(r"\s", "", str(r[2]))
+                    rec["index"] = _num(r[1])
+                    rec["index_chg"] = abs(_num(r[3])) * (1 if up else -1)
+                    rec["index_pct"] = _num(r[4])
+        if "成交統計" in str(f[:1]) and rows:
+            for r in rows:
+                if "一般股票" in str(r[0]):
+                    rec["turnover"] = _num(r[1])
+        if "類型" in str(f[:1]) and rows:
+            # 「股票」欄形如 "762(15)"：上漲家數(漲停家數)
+            for r in rows:
+                head, stock = str(r[0]), str(r[2] if len(r) > 2 else "")
+                n = _num(stock.split("(")[0])
+                if "上漲" in head:
+                    rec["adv"] = n
+                elif "下跌" in head:
+                    rec["dec"] = n
+                elif "持平" in head:
+                    rec["flat"] = n
+    return pd.DataFrame([rec]) if "index" in rec else pd.DataFrame()
+
+
+def index_history(end_date, days=70, verbose=False):
+    rows = []
+    for i, d in enumerate(trading_days(end_date, days), 1):
+        if verbose:
+            print(f"  [{i}/{days}] {d}", file=sys.stderr)
+        df = _cached_raw("twse_index", d, _twse_index)
+        if not df.empty:
+            rows.append(df)
+    return pd.concat(rows, ignore_index=True).sort_values("date") if rows else pd.DataFrame()
+
+
+def _cached_raw(kind, date, fetch):
+    """跟 _cached 一樣，但不套用個股代號過濾（指數資料沒有 code 欄）。"""
+    p = _cache_path(kind, date)
+    if os.path.exists(p):
+        with open(p, encoding="utf-8") as f:
+            return pd.DataFrame(json.load(f))
+    df = fetch(date)
+    if df is None or df.empty:
+        return pd.DataFrame()
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(df.to_dict("records"), f, ensure_ascii=False)
+    return df
 
 
 def _roc(date):

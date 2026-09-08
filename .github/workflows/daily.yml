@@ -1,8 +1,8 @@
-name: 每日產生早報
+name: 每日更新
 
 on:
   schedule:
-    # 09:00 UTC = 台北 17:00，收盤與三大法人資料都已公布
+    # 09:00 UTC = 台北 17:00，收盤、三大法人與期交所資料都已公布
     - cron: "0 9 * * 1-5"
   workflow_dispatch: {}   # 也可以在 Actions 頁面手動按一下就跑
 
@@ -34,18 +34,43 @@ jobs:
           key: mkt-${{ github.run_id }}
           restore-keys: mkt-
 
-      # build_site.py 只用證交所/櫃買的公開資料，不需要任何金鑰
-      - name: 產生網站
+      # 證交所 / 櫃買 / 期交所都是公開端點，不需要金鑰。
+      # FINMIND_TOKEN 只用在產業分類，沒設也能跑（產業會顯示「其他」）。
+      - name: 產生早報站
         run: python build_site.py
+
+      - name: 產生 TradeLab 資料
+        env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+        run: python export_tradelab.py
+
+      - name: 組裝 TradeLab
+        run: python build_tradelab.py
+
+      # 訊號驗證：失敗不該擋住網站更新，所以允許失敗
+      - name: 重算訊號驗證
+        continue-on-error: true
+        run: python validate.py
 
       - name: 提交結果
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A docs
+          git add -A docs validation.json meta.json
           if git diff --staged --quiet; then
             echo "內容沒變，不提交"
           else
-            git commit -m "早報 $(TZ=Asia/Taipei date +%Y-%m-%d)"
+            git commit -m "更新 $(TZ=Asia/Taipei date +%Y-%m-%d)"
             git push
           fi
+
+      # 推播失敗不影響網站更新，所以放最後且允許失敗
+      - name: 推播通知
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_TO:            ${{ secrets.LINE_TO }}
+        run: python notify.py
