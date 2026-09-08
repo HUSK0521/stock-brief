@@ -1,0 +1,11 @@
+{
+  "watch": ["2330", "2317", "2454", "2382", "0050"],
+  "rules": ["inst_in", "retail_catch", "diverge", "fz_buy", "fz_sell"],
+  "market_top": 3,
+  "only_when_signals": true,
+  "channels": {
+    "telegram": false,
+    "discord": false,
+    "line": false
+  }
+}

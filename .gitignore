@@ -2,9 +2,8 @@
 cache_mkt/
 cache/
 
-# 祕密
+# 祕密（token 只走環境變數 / GitHub Secrets）
 .env
-notify.config.json
 
 # 建置中間產物（發布用的那份在 docs/）
 /tradelab.html

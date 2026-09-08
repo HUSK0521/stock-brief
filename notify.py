@@ -199,8 +199,12 @@ def main():
 
     on = [k for k, v in cfg["channels"].items() if v]
     if not on:
-        print("沒有啟用任何管道，請編輯 notify.config.json 的 channels", file=sys.stderr)
-        sys.exit(1)
+        # 「還沒設定推播」是一種狀態，不是錯誤。回非零會讓 CI 介面出現紅字，
+        # 看起來像壞掉了，但其實只是使用者還沒填 secrets。
+        print("沒有啟用任何推播管道，跳過。", file=sys.stderr)
+        print("要開啟的話，編輯 notify.config.json 的 channels，"
+              "並在 GitHub Secrets 設定對應的 token。", file=sys.stderr)
+        return
 
     fail = 0
     for k in on:
